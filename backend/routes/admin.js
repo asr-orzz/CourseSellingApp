@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const adminRouter=Router();
-const {adminModel}=require('../db');
+const {adminModel,courseModel}=require('../db');
 const {z}=require('zod');
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
@@ -70,15 +70,78 @@ adminRouter.post('/signin',async function(req,res){
     }
 })
 adminRouter.post('/course',adminMiddleware,async function(req,res){
-    res.json({
-        msg: "From Course Creation"
+    const {title,description,price,imageUrl}=req.body;
+    const adminId=req.headers.adminId;
+    const reqcourseBody=z.object({
+        title : z.string(),
+        description: z.string(),
+        price : z.number(),
+        imageUrl: z.string()
     })
+    const verify=reqcourseBody.safeParse(req.body);
+    if(verify.success){
+       const course= await courseModel.create({
+            title: title,
+            description: description,
+            price: price,
+            imageUrl: imageUrl,
+            creatorId: adminId
+        })
+        res.json({
+            msg : "Course Has been Created",
+            courseId: course._id
+        })
+    }
+    else{
+        res.json(verify.error);
+    }
 })
 adminRouter.put('/course',adminMiddleware,async function(req,res){
-
-})
+    const {title,description,price,imageUrl,courseId}=req.body;
+    const adminId=req.headers.adminId;
+    const reqcourseBody=z.object({
+        title : z.string(),
+        description: z.string(),
+        price : z.number(),
+        imageUrl: z.string(),
+        courseId: z.string()
+    })
+    const verify=reqcourseBody.safeParse(req.body);
+    if(verify.success){
+      await courseModel.updateOne(
+        {
+            _id: courseId,
+            creatorId: adminId
+        },
+        {
+            title: title,
+            description: description,
+            price: price,
+            imageUrl: imageUrl
+        })
+        res.json({
+            msg : "Course Has been Updated"
+        })
+    }
+    else{
+        res.json(verify.error);
+    }
+}
+)
 adminRouter.get('/course',adminMiddleware,async function(req,res){
-
+    const adminId=req.headers.adminId;
+    try{
+        const courses=await courseModel.find({
+            creatorId: adminId
+        })
+        res.json(courses);
+    }
+    catch(e){
+        res.json({
+            msg : "Something Went Wrong"
+        })
+    }
+   
 })
 
 module.exports={
