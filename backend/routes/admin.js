@@ -10,7 +10,7 @@ adminRouter.post('/signup',async function(req,res){
     const {email,password,firstName,lastName}=req.body;
     const bodySchema=z.object({
         email : z.string().email(),
-        password: z.string().min(8).max(20).regex(/[A-Z]/).regex(/[a-z]/),
+        password: z.string().min(8).max(20).regex(/[A-Z]/).regex(/[a-z]/).regex(/[\W_]/),
         firstName: z.string().min(4).max(20),
         lastName: z.string().min(4).max(20)
     });
@@ -42,7 +42,7 @@ adminRouter.post('/signin',async function(req,res){
     const {email,password}=req.body;
     const bodySchema=z.object({
         email : z.string().email(),
-        password: z.string().min(8).max(20).regex(/[A-Z]/).regex(/[a-z]/.regex(/[\W_]/))
+        password: z.string().min(8).max(20).regex(/[A-Z]/).regex(/[a-z]/).regex(/[\W_]/)
     });
     const verify=bodySchema.safeParse(req.body);
     if(verify.success){
