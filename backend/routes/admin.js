@@ -4,6 +4,7 @@ const {adminModel}=require('../db');
 const {z}=require('zod');
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
+const {adminMiddleware}=require('../middlewares/adminMiddleware');
 
 adminRouter.post('/signup',async function(req,res){
     const {email,password,firstName,lastName}=req.body;
@@ -52,8 +53,8 @@ adminRouter.post('/signin',async function(req,res){
         if(compare){
             const token=jwt.sign({
                 token : user._id.toString()
-            },"COURSE");
-            res.headers.token=token;
+            },process.env.JWT_ADMIN_PASSWORD);
+            req.headers.token=token;
             res.json({
                 token : token
             });
@@ -68,13 +69,15 @@ adminRouter.post('/signin',async function(req,res){
         res.json(verify.error);
     }
 })
-adminRouter.post('/course',async function(req,res){
+adminRouter.post('/course',adminMiddleware,async function(req,res){
+    res.json({
+        msg: "From Course Creation"
+    })
+})
+adminRouter.put('/course',adminMiddleware,async function(req,res){
 
 })
-adminRouter.put('/course',async function(req,res){
-
-})
-adminRouter.get('/course',async function(req,res){
+adminRouter.get('/course',adminMiddleware,async function(req,res){
 
 })
 
