@@ -1,13 +1,15 @@
 const {Router}=require('express');
+const { courseModel } = require('../db');
 
 const courseRouter= Router();
 
-courseRouter.get('/preview',function(req,res){
+courseRouter.get('/preview',async function(req,res){
+    const courses= await courseModel.find({
 
+    })
+    res.json(courses);
 })
-courseRouter.get('/purchase',function(req,res){
-    
-})
+
 module.exports={
     courseRouter: courseRouter
 }
